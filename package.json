@@ -1,0 +1,33 @@
+{
+  "name": "karma-firebase-server-plugin",
+  "description": "starts a local firebase server when karma starts, so that all firebase tests can work offline",
+  "version": "1.0.0",
+  "author": "Timothy Gross",
+  "license": "MIT",
+  "keywords": [
+    "karma-plugin",
+    "karma-framework",
+    "karma-adapter",
+    "firebase",
+    "firebase-server"
+  ],
+  "homepage": "https://github.com/mitcoding/karma-firebase-servert#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mitcoding/karma-firebase-server.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mitcoding/karma-firebase-server/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">= 8.9.3",
+    "npm": ">= 5.6.0"
+  },
+  "peerDependencies": {
+    "firebase-server": "^1.0.0"
+  }
+}
