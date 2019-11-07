@@ -1,7 +1,7 @@
 {
   "name": "karma-firebase-server-plugin",
   "description": "starts a local firebase server when karma starts, so that all firebase tests can work offline",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Timothy Gross",
   "license": "MIT",
   "keywords": [

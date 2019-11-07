@@ -103,7 +103,7 @@ function initFirebaseServer(files, config) {
 		});
 	}
 
-	['SIGINT', 'SIGTERM'].forEach(function(signal) {
+	['exit', 'SIGINT', 'SIGTERM'].forEach(function(signal) {
 		process.on(signal, exit);
 	});
 }
