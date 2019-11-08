@@ -1,4 +1,5 @@
 var child_process = require("child_process");
+var path = require("path");
 
 function createPattern(path) {
 	return {pattern: path, included: true, served: true, watched: false};
@@ -6,7 +7,7 @@ function createPattern(path) {
 
 function getArguments(config) {
 	var 
-		args = "",
+		args = getDebugEnvVariable(config),
 		validArguments = [
 			"address",
 			"rest",
@@ -35,29 +36,31 @@ function getArguments(config) {
 		}
 	;
 	
+	args.push(path.join(process.cwd(), "node_modules", ".bin", "firebase-server") );
 	Object.keys(config).forEach(function(arg) {
 		if (validArguments.indexOf(arg) !== -1) {
 			switch(arg) {
-				case "daemon" : 
-					args += convertArg[arg];
-					break;
+				case "daemon" :
 				case "rest" : 
-					args += convertArg[arg];
-					break;
 				case "verbose" : 
-					args += convertArg[arg];
+					args.push((convertArg[arg] + "").trim() );
 					break;
 				default : 
-					args += convertArg[arg] + ' ' + config[arg];
+					args.push((convertArg[arg] + "").trim() );
+					args.push((config[arg] + "").trim() );
 			}
 		}
 	});
-
+	
 	return args;
 }
 
 function getDebugEnvVariable(config) {
-	return config.debugEnvVariable && config.debugEnvVariable.trim() !== "" ? "export DEBUG='" + config.debugEnvVariable + "'; " : "";
+	if (config.debugEnvVariable && config.debugEnvVariable.trim() !== "") {
+		return [path.join(process.cwd(), "node_modules", ".bin", "cross-env"), "DEBUG='" + config.debugEnvVariable + "'"];
+	}
+
+	return [""];
 }
 
 function initFirebaseServer(files, config) {
@@ -69,23 +72,19 @@ function initFirebaseServer(files, config) {
 			fdb.stdin.end();
 			fdb.stdout.destroy();
 			fdb.stderr.destroy();
+			fdb.kill('SIGINT');
 		}
 
 		process.exit(0);
+		fdb = null;
+		return true;
 	}
 
 	config = config || {};
 	config.client = config.client || { firebaseServer: {} };
 	config.client.firebaseServer = config.client.firebaseServer || {};
-	let enableDebugEnvVariable = getDebugEnvVariable(config.client.firebaseServer);
 
-	fdb = child_process.exec(enableDebugEnvVariable + 'node_modules/.bin/firebase-server' + getArguments(config.client.firebaseServer), function (error, stdout, stderr) {
-		if (config.client.firebaseServer.log || config.client.firebaseServer.verbose || enableDebugEnvVariable) {
-			console.log("stdout: " + stdout);
-			console.log("stderr: " + stderr);
-			console.log("error: " + error);
-		}
-	});
+	fdb = child_process.spawn("node", getArguments(config.client.firebaseServer) );
 	
 	if (config.client.firebaseServer.log || config.client.firebaseServer.verbose || enableDebugEnvVariable) {
 		fdb.stdout.on('data', function (data) {
@@ -98,7 +97,7 @@ function initFirebaseServer(files, config) {
 
 		fdb.on('exit', function (code) {
 			if (code) {
-				console.log('child process exited with code ' + code.toString());
+				console.log('child process exited with code ' + code.toString() );
 			}
 		});
 	}
